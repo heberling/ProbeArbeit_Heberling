@@ -1,0 +1,90 @@
+﻿@model List<Employee>
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<style type="text/css">
+    .jumbotron {
+        padding: 4rem 2rem;
+        margin-bottom: 2rem;
+        background-color: var(--bs-light);
+        border-radius: .3rem;
+    }
+</style>
+
+<div class="jumbotron bg-primary">
+    <div class="display-1 lead text-white text-center">
+        Employee-Tool
+    </div>
+</div>
+
+<h4 class="text-center">
+    Manage your Employees!
+</h4>
+
+
+<a class="btn btn-primary" asp-controller="Home" asp-action="CreateEditEmployees">Add Employee</a>
+<hr />
+
+<table id="EmployeeTable" class="table table-bordered table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Date of Birth</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            foreach (Employee employee in Model)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>@employee.Role</td>
+                    <td>@employee.Department</td>
+                    <td>@employee.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-route-id="@employee.ID" asp-controller="Home" asp-action="CreateEditEmployees" class="btn btn-warning">Edit</a>
+                        <button onclick="onClickedDelete(@employee.ID)" class="btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        let table = new DataTable('#EmployeeTable');
+        function onClickedDelete(id) {
+            Swal.fire({
+                title: "Delete Employee?",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //Backend Call delete by ID
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("DeleteEmployeeByID")",
+                        data: { id: id },
+                        success: function (msg) {
+                            Swal.fire('Successfully deleted', '', 'success').then((result) => {
+                                location.reload();
+                            });
+                        },
+                        error: function (msg) {
+                            Swal.fire('Error deleting employee!', '', 'error');
+                        }
+                    });
+                }
+            });
+        };
+
+    </script>
+}
+
